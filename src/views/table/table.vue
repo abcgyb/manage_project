@@ -1,14 +1,27 @@
 <template>
   <div id="vue-menu3">
-<!--    <el-form-item label="管理人员">
-      <el-input  placeholder="管理人员"></el-input>
-    </el-form-item>-->
+    <!--    <el-form-item label="管理人员">
+          <el-input  placeholder="管理人员"></el-input>
+        </el-form-item>-->
     <el-row style="margin-bottom: 20px;">
+
+
       <el-col :span="4">
-        <el-input  placeholder="管理人员" v-model="manager" class="grid-content" size="mini"></el-input>
+        <el-select v-model="manager" filterable placeholder="请选择" size="mini">
+          <el-option
+            v-for="item in managerList"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
       </el-col>
+
+      <!--      <el-col :span="4" :offset="1">
+              <el-input  placeholder="管理人员" v-model="manager" class="grid-content" size="mini"></el-input>
+            </el-col>-->
       <el-col :span="4" :offset="1">
-        <el-input  placeholder="书名" v-model="bookname" class="grid-content" size="mini"></el-input>
+        <el-input placeholder="书名" v-model="bookname" class="grid-content" size="mini"></el-input>
       </el-col>
       <el-col :span="4" :offset="1">
         <el-date-picker
@@ -17,7 +30,7 @@
           placeholder="借阅日期" size="mini">
         </el-date-picker>
       </el-col>
-      <el-col :span="5" :offset="1">
+      <el-col :span="4" :offset="1">
         <el-date-picker
           v-model="value2"
           type="date"
@@ -27,9 +40,11 @@
     </el-row>
     <el-row>
       <el-col :span="12">
-        <el-button v-on:click="query" type="primary" icon="el-icon-search" size="mini" >查询</el-button>
+        <el-button v-on:click="query" type="primary" icon="el-icon-search" size="mini">查询</el-button>
         <el-button @click.native="clickAdd" type="success" icon="el-icon-circle-plus" size="mini">新增</el-button>
-        <el-button @click.native="clickDelete" type="warning" icon="el-icon-delete" size="mini" :disabled="disabledFlag">批量删除</el-button>
+        <el-button @click.native="clickDelete" type="warning" icon="el-icon-delete" size="mini"
+                   :disabled="disabledFlag">批量删除
+        </el-button>
         <el-button v-on:click="forbbidClick" :type="forbbidType" icon="el-icon-warning" size="mini" plain>{{forbbidName}}</el-button>
         <el-button type="primary" :loading="true" size="mini">转转转，转起来</el-button>
       </el-col>
@@ -65,13 +80,15 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button-group>
-          <el-button
-            size="mini"
-            @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit">编辑</el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete">删除</el-button>
+            <el-button
+              size="mini"
+              @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit">编辑
+            </el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete">删除
+            </el-button>
           </el-button-group>
         </template>
       </el-table-column>
@@ -84,10 +101,12 @@
         </el-form-item>
         <el-form-item label="管理人员" :label-width="formLabelWidth">
           <el-select v-model="bookForm.manager" placeholder="请选择管理者" style="width: 243px" size="mini">
-            <el-option label="张三" value="张三"></el-option>
-            <el-option label="李四" value="李四"></el-option>
-            <el-option label="王五" value="王五"></el-option>
-            <el-option label="赵六" value="赵六"></el-option>
+            <el-option
+              v-for="item in managerList"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -96,7 +115,6 @@
         <el-button type="success" @click="dialogFormVisible = false,bookInsert('bookForm')" size="mini">确 定</el-button>
       </div>
     </el-dialog>
-
 
 
     <div class="block">
@@ -112,126 +130,129 @@
     </div>
 
 
-
   </div>
 </template>
 <script type="text/ecmascript-6">
   import ElButton from "../../../node_modules/element-ui/packages/button/src/button";
+  import ElCol from "element-ui/packages/col/src/col";
   export default {
-    components: {ElButton},
+    components: {
+      ElCol,
+      ElButton
+    },
     props: {
-      user: {
-      }
+      user: {}
     },
     data () {
       return {
-        libraryInfo:[],
+        libraryInfo: [],
         value1: '',
-        value2:'',
-        manager:'',
-        bookname:'',
+        value2: '',
+        manager: '',
+        bookname: '',
         bookId: 0,
         pageNo: 1,
         pageSize: 10,
-        pageSizesList: [1, 2, 3,10],
+        pageSizesList: [1, 2, 3, 10],
         tableData: [],//返回的结果集合
         totalDataNumber: 0,//数据的总数,
-        dialogFormVisible:false,//控制弹出框默认不显示
+        dialogFormVisible: false,//控制弹出框默认不显示
         bookForm: {
           bookname: '',
           manager: ''
         },
-        formLabelWidth:'120px',
-        title:'新增书籍',
+        formLabelWidth: '120px',
+        title: '新增书籍',
         sels: [],//选中的值显示
         deleteIds: [],//选中的要删除的ID,
         forbbidName: '禁用批量按钮',
-        disabledFlag:false,
-        forbbidType:"danger"
+        disabledFlag: false,
+        forbbidType: "danger",
+        managerList: [],
       };
     },
-    methods:{
+    methods: {
       query(){
-        this.$http.post('/bookOperate/queryInfo',{
+        this.$http.post('/bookOperate/queryInfo', {
           "manager": this.manager,
           "bookname": this.bookname,
-          "pageNo":this.pageNo,
-          "pageSize":this.pageSize
-        }).then(function(res){
-          if(res.body.dtoList.length>0){
+          "pageNo": this.pageNo,
+          "pageSize": this.pageSize
+        }).then(function (res) {
+          if (res.body.dtoList.length > 0) {
             this.libraryInfo = res.body.dtoList;
             this.totalDataNumber = res.body.total;
-          }else{
+          } else {
             this.libraryInfo = res.body.dtoList;
             this.totalDataNumber = res.body.total;
           }
-        },function(res){
+        }, function (res) {
         });
       },
       bookInsert(){
         //首先判断是新增还是修改
-        if(this.title=="新增书籍信息"){
-          this.$http.post('/bookOperate/insertBook',{
+        if (this.title == "新增书籍信息") {
+          this.$http.post('/bookOperate/insertBook', {
             "chargePerson": this.bookForm.manager,
             "name": this.bookForm.bookname
-          }).then(function(res){
+          }).then(function (res) {
             //插入成功，则弹窗提示
-            if(res.data>0){
+            if (res.data > 0) {
               this.$message({
                 message: '恭喜你,插入一条书籍信息',
                 type: 'success'
               });
             }
-            this.pageSize=10;
+            this.pageSize = 10;
             this.query();
-          },function(res){
+          }, function (res) {
             //关闭对话框
             this.closeRollback()
-            this.pageSize=10;
+            this.pageSize = 10;
             this.query();
           });
-        }else{
-          this.$http.post('/bookOperate/updateBook',{
+        } else {
+          this.$http.post('/bookOperate/updateBook', {
             "chargePerson": this.bookForm.manager,
             "name": this.bookForm.bookname,
             "bookId": this.bookId
-          }).then(function(res){
+          }).then(function (res) {
             //更新成功，则弹窗提示
-            if(res.data>0){
+            if (res.data > 0) {
               this.$message({
                 message: '恭喜你,更新一条书籍信息',
                 type: 'success'
               });
             }
-            this.pageSize=10;
+            this.pageSize = 10;
             this.query();
-          },function(res){
+          }, function (res) {
             //关闭对话框
             this.closeRollback()
-            this.pageSize=10;
+            this.pageSize = 10;
             this.query();
           });
         }
 
       },
       //删除
-      handleDelete(index,row){
-        this.$http.post('/bookOperate/deleteBook',{
+      handleDelete(index, row){
+        this.$http.post('/bookOperate/deleteBook', {
           "bookId": parseInt(row.bookId)
-        }).then(function(res){
+        }).then(function (res) {
           //更新成功，则弹窗提示
-          if(res.data>0){
+          if (res.data > 0) {
             this.$message({
               message: '恭喜你,删除一条书籍信息',
               type: 'success'
             });
           }
-          this.pageSize=10;
+          this.pageSize = 10;
           this.query();
-        },function(res){
+        }, function (res) {
           //关闭对话框
           this.closeRollback()
-          this.pageSize=10;
+          this.pageSize = 10;
           this.query();
         });
       },
@@ -243,69 +264,84 @@
       clickDelete(){
         console.info(this.sels)
         var ids = this.sels.map(item => item.bookId).join(',')//获取所有选中行的id组成的字符串，以逗号分隔
-        this.$http.post('/bookOperate/amountDeleteBook',{
+        this.$http.post('/bookOperate/amountDeleteBook', {
           "bookIds": ids
-        }).then(function(res){
+        }).then(function (res) {
           //批量删除成功，则弹窗提示
-          if(res.data>0){
+          if (res.data > 0) {
             this.$message({
               message: '恭喜你,删除了书籍信息',
               type: 'success'
             });
           }
-          this.pageSize=10;
+          this.pageSize = 10;
           this.query();
-        },function(res){
+        }, function (res) {
           //关闭对话框
           this.closeRollback()
-          this.pageSize=10;
+          this.pageSize = 10;
           this.query();
         });
       },
 
       closeRollback(){
-        this.bookForm.manager =''
-        this.bookForm.bookname =''
+        this.bookForm.manager = ''
+        this.bookForm.bookname = ''
       },
 
       clickAdd(){
-        this.dialogFormVisible=true
-        this.title='新增书籍信息'
+        this.dialogFormVisible = true
+        this.title = '新增书籍信息'
       },
 
       //点击修改，弹出对话框
-      handleEdit(index,row){
-        this.dialogFormVisible=true
-        this.title='修改书籍信息'
-        this.bookForm.manager =row.chargePerson
-        this.bookForm.bookname =row.name
-        this.bookId =row.bookId
+      handleEdit(index, row){
+        this.dialogFormVisible = true
+        this.title = '修改书籍信息'
+        this.bookForm.manager = row.chargePerson
+        this.bookForm.bookname = row.name
+        this.bookId = row.bookId
       },
       //分页
       handleSizeChange(val) {
-        var pageSize =val;
-        this.pageNo=1
-        this.pageSize=parseInt(pageSize)
+        var pageSize = val;
+        this.pageNo = 1
+        this.pageSize = parseInt(pageSize)
         this.query();
       },
       handleCurrentChange(val) {
         var pageNo = `${val}`;
-        this.pageNo= parseInt(pageNo)
+        this.pageNo = parseInt(pageNo)
         this.query();
       },
 
       forbbidClick(){
-          if(this.forbbidName=="禁用批量按钮"){
-            this.forbbidName="启用批量按钮"
-            this.disabledFlag=true
-            this.forbbidType='success'
-          }else{
-            this.forbbidName="禁用批量按钮"
-            this.disabledFlag=false
-            this.forbbidType='danger'
-          }
+        if (this.forbbidName == "禁用批量按钮") {
+          this.forbbidName = "启用批量按钮"
+          this.disabledFlag = true
+          this.forbbidType = 'success'
+        } else {
+          this.forbbidName = "禁用批量按钮"
+          this.disabledFlag = false
+          this.forbbidType = 'danger'
+        }
 
       }
+    },
+    created(){
+      this.$http.post('/managerOperate/queryNames', {
+        "manager": this.manager,
+        "bookname": this.bookname,
+        "pageNo": this.pageNo,
+        "pageSize": this.pageSize
+      }).then(function (res) {
+        if (res.body.length > 0) {
+          this.managerList=res.body
+        } else {
+          this.managerList=res.body
+        }
+      }, function (res) {
+      });
     }
   };
 </script>
@@ -314,6 +350,7 @@
     text-align: center;
     margin-top: 30px;
   }
+
   .el-message-box__btns .cancel {
     float: right;
     margin-left: 10px;
@@ -321,26 +358,34 @@
 
   .el-row {
     margin-bottom: 20px;
-  &:last-child {
-     margin-bottom: 0;
-   }
+
+  &
+  :last-child {
+    margin-bottom: 0;
+  }
+
   }
   .el-col {
     border-radius: 4px;
   }
+
   .bg-purple-dark {
     background: #99a9bf;
   }
+
   .bg-purple {
     background: #d3dce6;
   }
+
   .bg-purple-light {
     background: #e5e9f2;
   }
+
   .grid-content {
     border-radius: 4px;
     min-height: 36px;
   }
+
   .row-bg {
     padding: 10px 0;
     background-color: #f9fafc;

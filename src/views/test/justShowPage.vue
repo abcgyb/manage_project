@@ -1,5 +1,5 @@
 <template>
-  <h1>哈哈你个大傻逼，哈哈！！</h1>
+  <h1>此处是用于展示的页面！</h1>
 </template>
 
 <script type="text/javascript">
